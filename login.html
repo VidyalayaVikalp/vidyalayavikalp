@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - VidyaVikalp</title>
+    <style>
+        /* Basic styles for the sign-in page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .btn-google {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-google:hover {
+            background-color: #357AE8;
+        }
+
+        .btn-signout {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: none;
+        }
+
+        .btn-signout:hover {
+            background-color: #ff0000;
+        }
+
+        #user-details {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sign In to VidyaVikalp</h1>
+        <button class="btn-google" id="google-signin">Sign in with Google</button>
+        <button class="btn-signout" id="google-signout">Sign out</button>
+        <p id="user-details"></p>
+    </div>
+
+    <!-- Add Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <script>
+const firebaseConfig = {
+    apiKey: "AIzaSyB4NItccmgoqliGV4tgvIDSlf02dpVKrX0",
+    authDomain: "vidyalayavikalp-21b4a.firebaseapp.com",
+    projectId: "vidyalayavikalp-21b4a",
+    storageBucket: "vidyalayavikalp-21b4a.appspot.com",
+    messagingSenderId: "190167801890",
+    appId: "1:190167801890:web:4382c8203df30587f1aa7b",
+    measurementId: "G-CW2L8NGEJL"
+  };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Reference to Firebase Authentication
+        const auth = firebase.auth();
+
+        // Sign in with Google
+        document.getElementById('google-signin').addEventListener('click', function() {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user;
+                document.getElementById('user-details').textContent = `Welcome, ${user.displayName}`;
+                document.getElementById('google-signin').style.display = 'none';
+                document.getElementById('google-signout').style.display = 'inline';
+            })
+            .catch((error) => {
+                console.error('Error during sign in:', error);
+            });
+        });
+
+        // Sign out
+        document.getElementById('google-signout').addEventListener('click', function() {
+            auth.signOut()
+            .then(() => {
+                document.getElementById('user-details').textContent = 'You have signed out.';
+                document.getElementById('google-signin').style.display = 'inline';
+                document.getElementById('google-signout').style.display = 'none';
+            })
+            .catch((error) => {
+                console.error('Error during sign out:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>
