@@ -25,7 +25,7 @@
             width: 350px;
         }
 
-        h1 {
+        h1, h2 {
             color: #333;
             margin-bottom: 20px;
         }
@@ -96,6 +96,14 @@
             <button class="btn" id="apple-signin">Sign in with Apple</button>
         </div>
 
+        <!-- Add registration section -->
+        <div id="registration">
+            <h2>Create Account</h2>
+            <input type="email" id="reg-email" placeholder="Email" required>
+            <input type="password" id="reg-password" placeholder="Password" required>
+            <button class="btn" id="register-button">Register</button>
+        </div>
+
         <!-- Profile information will be shown here -->
         <div id="profile-info">
             <img id="user-photo" alt="User Photo">
@@ -146,6 +154,23 @@
             });
         });
 
+        // User registration
+        document.getElementById('register-button').addEventListener('click', function() {
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // Successfully created new user
+                console.log('User registered:', userCredential.user);
+                alert('Registration successful! You can now log in.');
+            })
+            .catch((error) => {
+                console.error('Error during registration:', error.message);
+                alert(error.message); // Display error message to the user
+            });
+        });
+
         // Sign in with Google
         document.getElementById('google-signin').addEventListener('click', function() {
             const provider = new firebase.auth.GoogleAuthProvider();
@@ -161,7 +186,7 @@
 
         // Sign in with Apple (ensure you set up the provider in Firebase Console)
         document.getElementById('apple-signin').addEventListener('click', function() {
-            const provider = new firebase.auth.AppleAuthProvider();
+            const provider = new firebase.auth.OAuthProvider('apple.com');
             auth.signInWithPopup(provider)
             .then((result) => {
                 const user = result.user;
@@ -172,33 +197,39 @@
             });
         });
 
-        // Show user profile information
+        // Show user profile
         function showUserProfile(user) {
-            document.getElementById('user-name').textContent = user.displayName;
+            document.getElementById('user-name').textContent = user.displayName || "User";
             document.getElementById('user-email').textContent = `Email: ${user.email}`;
             document.getElementById('user-id').textContent = `User ID: ${user.uid}`;
-            document.getElementById('user-photo').src = user.photoURL;
-
-            // Show profile info and hide the login form
+            if (user.photoURL) {
+                document.getElementById('user-photo').src = user.photoURL;
+            } else {
+                document.getElementById('user-photo').src = "https://via.placeholder.com/100"; // Placeholder image
+            }
             document.getElementById('profile-info').style.display = 'block';
             document.getElementById('email-login').style.display = 'none';
+            document.getElementById('registration').style.display = 'none';
         }
 
         // Sign out
         document.getElementById('google-signout').addEventListener('click', function() {
-            auth.signOut()
-            .then(() => {
-                // Hide profile info and show the login form
+            auth.signOut().then(() => {
                 document.getElementById('profile-info').style.display = 'none';
                 document.getElementById('email-login').style.display = 'block';
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
-            })
-            .catch((error) => {
-                console.error('Error during sign-out:', error);
+                document.getElementById('registration').style.display = 'block';
+                console.log('User signed out');
+            }).catch((error) => {
+                console.error('Error during sign out:', error.message);
             });
         });
-    </script>
 
+        // Listen for authentication state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                showUserProfile(user);
+            }
+        });
+    </script>
 </body>
 </html>
