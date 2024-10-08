@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page - VidyaVikalp</title>
+    <title>Login Page - VidyaVikalp</title>
     <style>
-        /* Basic styles for the profile page */
+        /* Basic styles for the login page */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f7f7f7;
@@ -30,7 +30,15 @@
             margin-bottom: 20px;
         }
 
-        .btn-google {
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn {
             background-color: #4285F4;
             color: white;
             border: none;
@@ -39,22 +47,16 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            width: 100%;
         }
 
-        .btn-google:hover {
+        .btn:hover {
             background-color: #357AE8;
         }
 
         .btn-signout {
             background-color: #ff4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .btn-signout:hover {
@@ -63,6 +65,7 @@
 
         #profile-info {
             margin-top: 20px;
+            display: none;
         }
 
         #profile-info img {
@@ -83,15 +86,23 @@
 
     <div class="container">
         <h1>Welcome to VidyaVikalp</h1>
-        <button class="btn-google" id="google-signin">Sign in with Google</button>
+        
+        <!-- Email and Password Login Form -->
+        <div id="email-login">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button class="btn" id="email-signin">Sign in with Email</button>
+            <button class="btn" id="google-signin">Sign in with Google</button>
+            <button class="btn" id="apple-signin">Sign in with Apple</button>
+        </div>
 
         <!-- Profile information will be shown here -->
-        <div id="profile-info" style="display: none;">
+        <div id="profile-info">
             <img id="user-photo" alt="User Photo">
             <p><strong id="user-name"></strong></p>
             <p id="user-email"></p>
             <p id="user-id"></p>
-            <button class="btn-signout" id="google-signout">Sign Out</button>
+            <button class="btn btn-signout" id="google-signout">Sign Out</button>
         </div>
     </div>
 
@@ -101,7 +112,8 @@
 
     <script>
         // Your Firebase configuration
-        const firebaseConfig = {
+        
+  const firebaseConfig = {
     apiKey: "AIzaSyB4NItccmgoqliGV4tgvIDSlf02dpVKrX0",
     authDomain: "vidyalayavikalp-21b4a.firebaseapp.com",
     projectId: "vidyalayavikalp-21b4a",
@@ -111,39 +123,76 @@
     measurementId: "G-CW2L8NGEJL"
   };
 
+
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
         // Reference to Firebase Authentication
         const auth = firebase.auth();
 
+        // Email and Password Sign-In
+        document.getElementById('email-signin').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                showUserProfile(user);
+            })
+            .catch((error) => {
+                console.error('Error during email sign-in:', error.message);
+            });
+        });
+
         // Sign in with Google
         document.getElementById('google-signin').addEventListener('click', function() {
-            var provider = new firebase.auth.GoogleAuthProvider();
+            const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
             .then((result) => {
                 const user = result.user;
-                document.getElementById('user-name').textContent = user.displayName;
-                document.getElementById('user-email').textContent = `Email: ${user.email}`;
-                document.getElementById('user-id').textContent = `User ID: ${user.uid}`;
-                document.getElementById('user-photo').src = user.photoURL;
-
-                // Show profile info and hide the sign-in button
-                document.getElementById('profile-info').style.display = 'block';
-                document.getElementById('google-signin').style.display = 'none';
+                showUserProfile(user);
             })
             .catch((error) => {
-                console.error('Error during sign-in:', error);
+                console.error('Error during Google sign-in:', error.message);
             });
         });
+
+        // Sign in with Apple (ensure you set up the provider in Firebase Console)
+        document.getElementById('apple-signin').addEventListener('click', function() {
+            const provider = new firebase.auth.AppleAuthProvider();
+            auth.signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user;
+                showUserProfile(user);
+            })
+            .catch((error) => {
+                console.error('Error during Apple sign-in:', error.message);
+            });
+        });
+
+        // Show user profile information
+        function showUserProfile(user) {
+            document.getElementById('user-name').textContent = user.displayName;
+            document.getElementById('user-email').textContent = `Email: ${user.email}`;
+            document.getElementById('user-id').textContent = `User ID: ${user.uid}`;
+            document.getElementById('user-photo').src = user.photoURL;
+
+            // Show profile info and hide the login form
+            document.getElementById('profile-info').style.display = 'block';
+            document.getElementById('email-login').style.display = 'none';
+        }
 
         // Sign out
         document.getElementById('google-signout').addEventListener('click', function() {
             auth.signOut()
             .then(() => {
-                // Hide profile info and show the sign-in button
+                // Hide profile info and show the login form
                 document.getElementById('profile-info').style.display = 'none';
-                document.getElementById('google-signin').style.display = 'inline';
+                document.getElementById('email-login').style.display = 'block';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
             })
             .catch((error) => {
                 console.error('Error during sign-out:', error);
