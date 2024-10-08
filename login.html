@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - VidyaVikalp</title>
+    <title>Profile Page - VidyaVikalp</title>
     <style>
-        /* Basic styles for the sign-in page */
+        /* Basic styles for the profile page */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,7 +21,8 @@
             background-color: white;
             padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
         }
 
         h1 {
@@ -53,25 +54,45 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            display: none;
+            margin-top: 20px;
         }
 
         .btn-signout:hover {
             background-color: #ff0000;
         }
 
-        #user-details {
+        #profile-info {
             margin-top: 20px;
+        }
+
+        #profile-info img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        #profile-info p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #555;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Sign In to VidyaVikalp</h1>
+        <h1>Welcome to VidyaVikalp</h1>
         <button class="btn-google" id="google-signin">Sign in with Google</button>
-        <button class="btn-signout" id="google-signout">Sign out</button>
-        <p id="user-details"></p>
+
+        <!-- Profile information will be shown here -->
+        <div id="profile-info" style="display: none;">
+            <img id="user-photo" alt="User Photo">
+            <p><strong id="user-name"></strong></p>
+            <p id="user-email"></p>
+            <p id="user-id"></p>
+            <button class="btn-signout" id="google-signout">Sign Out</button>
+        </div>
     </div>
 
     <!-- Add Firebase SDKs -->
@@ -79,7 +100,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
-const firebaseConfig = {
+        // Your Firebase configuration
+        const firebaseConfig = {
     apiKey: "AIzaSyB4NItccmgoqliGV4tgvIDSlf02dpVKrX0",
     authDomain: "vidyalayavikalp-21b4a.firebaseapp.com",
     projectId: "vidyalayavikalp-21b4a",
@@ -101,12 +123,17 @@ const firebaseConfig = {
             auth.signInWithPopup(provider)
             .then((result) => {
                 const user = result.user;
-                document.getElementById('user-details').textContent = `Welcome, ${user.displayName}`;
+                document.getElementById('user-name').textContent = user.displayName;
+                document.getElementById('user-email').textContent = `Email: ${user.email}`;
+                document.getElementById('user-id').textContent = `User ID: ${user.uid}`;
+                document.getElementById('user-photo').src = user.photoURL;
+
+                // Show profile info and hide the sign-in button
+                document.getElementById('profile-info').style.display = 'block';
                 document.getElementById('google-signin').style.display = 'none';
-                document.getElementById('google-signout').style.display = 'inline';
             })
             .catch((error) => {
-                console.error('Error during sign in:', error);
+                console.error('Error during sign-in:', error);
             });
         });
 
@@ -114,12 +141,12 @@ const firebaseConfig = {
         document.getElementById('google-signout').addEventListener('click', function() {
             auth.signOut()
             .then(() => {
-                document.getElementById('user-details').textContent = 'You have signed out.';
+                // Hide profile info and show the sign-in button
+                document.getElementById('profile-info').style.display = 'none';
                 document.getElementById('google-signin').style.display = 'inline';
-                document.getElementById('google-signout').style.display = 'none';
             })
             .catch((error) => {
-                console.error('Error during sign out:', error);
+                console.error('Error during sign-out:', error);
             });
         });
     </script>
