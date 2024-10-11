@@ -159,20 +159,19 @@
 
         // Function to create and insert school cards
         function createCards(schools) {
-    const container = document.getElementById('cards-container');
-    container.innerHTML = ''; // Clear container before adding new cards
-    schools.forEach(school => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <img src="${school.image}" alt="${school.name}">
-            <h3>${school.name}</h3>
-            <p>${school.location}</p>
-            <p>${school.description}</p>
-            <a href="school.html?code=${school.schoolCode}">More about ${school.name}</a>
-        `;
-        container.appendChild(card);
-    });
+            const container = document.getElementById('cards-container');
+            schools.forEach(school => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${school.image}" alt="${school.name}">
+                    <h3>${school.name}</h3>
+                    <p>${school.location}</p>
+                    <p>${school.description}</p>
+                    <a href="school.html?code=${school.schoolCode}">More about ${school.name}</a>
+                `;
+                container.appendChild(card); // Append the card instead of replacing
+            });
         }
 
         // Load more schools when the user scrolls near the bottom
@@ -212,6 +211,8 @@
                 school.name.toLowerCase().includes(searchInput) || 
                 school.location.toLowerCase().includes(searchInput)
             );
+            const container = document.getElementById('cards-container');
+            container.innerHTML = ''; // Clear container before adding new cards
             createCards(filteredSchools); // Recreate the cards with the filtered data
         }
 
